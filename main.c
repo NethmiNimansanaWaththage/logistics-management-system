@@ -33,7 +33,7 @@ typedef struct {
     float delivery_time;
     int completed;
 } Delivery;
-// Global arrays
+// Global Arrays
 char cities[MAX_CITIES][MAX_NAME_LENGTH];
 float distances[MAX_CITIES][MAX_CITIES];
 Delivery deliveries[MAX_DELIVERIES];
@@ -47,5 +47,6 @@ int main()
     printf("Hello world!\n");
     return 0;
 }
+
 
 
