@@ -75,12 +75,39 @@ int isCityExists(char *city_name);
 void loadData();
 void saveData();
 
-
-int main()
-{
-    printf("Hello world!\n");
-    return 0;
+void initializeSystem() {
+    // Initializing vehicles
+    strcpy(vehicles[0].type, "Van");
+    vehicles[0].capacity = 1000;
+    vehicles[0].rate_per_km = 30;
+    vehicles[0].avg_speed = 60;
+    vehicles[0].fuel_efficiency = 12;
+    
+    strcpy(vehicles[1].type, "Truck");
+    vehicles[1].capacity = 5000;
+    vehicles[1].rate_per_km = 40;
+    vehicles[1].avg_speed = 50;
+    vehicles[1].fuel_efficiency = 6;
+    
+    strcpy(vehicles[2].type, "Lorry");
+    vehicles[2].capacity = 10000;
+    vehicles[2].rate_per_km = 80;
+    vehicles[2].avg_speed = 45;
+    vehicles[2].fuel_efficiency = 4;
+    
+    // Initializing distance matrix
+    for(int i = 0; i < MAX_CITIES; i++) {
+        for(int j = 0; j < MAX_CITIES; j++) {
+            if(i == j) 
+                distances[i][j] = 0;
+            else
+                distances[i][j] = -1; // -1 is meant to be no connection
+        }
+    }
 }
+
+
+
 
 
 
