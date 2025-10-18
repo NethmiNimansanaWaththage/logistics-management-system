@@ -106,6 +106,21 @@ void initializeSystem() {
     }
 }
 
+void displayMainMenu() {
+    system("cls"); 
+    printf("==============================================\n");
+    printf("      LOGISTICS MANAGEMENT SYSTEM\n");
+    printf("==============================================\n");
+    printf("1. City Management\n");
+    printf("2. Distance Management\n");
+    printf("3. Vehicle Management\n");
+    printf("4. Delivery Request\n");
+    printf("5. Reports\n");
+    printf("6. Save Data\n");
+    printf("7. Exit\n");
+    printf("==============================================\n");
+}
+
 
 
 
