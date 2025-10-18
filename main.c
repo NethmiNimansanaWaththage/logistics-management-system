@@ -40,6 +40,40 @@ Delivery deliveries[MAX_DELIVERIES];
 Vehicle vehicles[3];
 int city_count = 0;
 int delivery_count = 0;
+// Function prototypes
+void initializeSystem();
+void displayMainMenu();
+void cityManagement();
+void distanceManagement();
+void vehicleManagement();
+void deliveryRequest();
+void reports();
+void fileHandling();
+
+// City Management functions
+void addCity();
+void renameCity();
+void removeCity();
+void displayCities();
+
+// Distance Management functions
+void inputDistance();
+void editDistance();
+void displayDistanceTable();
+
+// Delivery functions
+void calculateDelivery(int source, int destination, float weight, int vehicle_type);
+float findMinimumDistance(int source, int destination);
+void generatePermutations(int cities[], int start, int end, int source, int destination, float *min_distance, int best_path[], int *best_path_length);
+void swap(int *a, int *b);
+float calculatePathDistance(int path[], int length);
+
+// Utility functions
+int findCityIndex(char *city_name);
+void toLowerCase(char *str);
+int isCityExists(char *city_name);
+void loadData();
+void saveData();
 
 
 int main()
@@ -47,6 +81,7 @@ int main()
     printf("Hello world!\n");
     return 0;
 }
+
 
 
 
