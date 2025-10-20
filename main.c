@@ -120,6 +120,94 @@ void displayMainMenu() {
     printf("7. Exit\n");
     printf("==============================================\n");
 }
+void cityManagement() {
+    int choice;
+    do {
+        system("cls");
+        printf("=== CITY MANAGEMENT ===\n");
+        printf("1. Add New City\n");
+        printf("2. Rename City\n");
+        printf("3. Remove City\n");
+        printf("4. Display All Cities\n");
+        printf("5. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch(choice) {
+            case 1:
+                addCity();
+                break;
+            case 2:
+                renameCity();
+                break;
+            case 3:
+                removeCity();
+                break;
+            case 4:
+                displayCities();
+                break;
+            case 5:
+                break;
+            default:
+                printf("Invalid choice!\n");
+        }
+        if(choice != 5) {
+            printf("\nPress Enter to continue...");
+            getchar(); getchar();
+        }
+    } while(choice != 5);
+}
+
+void addCity() {
+    if(city_count >= MAX_CITIES) {
+        printf("Maximum city limit reached (%d cities)\n", MAX_CITIES);
+        return;
+    }
+    
+    char city_name[MAX_NAME_LENGTH];
+    printf("Enter city name: ");
+    scanf("%s", city_name);
+    
+    if(isCityExists(city_name)) {
+        printf("City '%s' already exists!\n", city_name);
+        return;
+    }
+    
+    strcpy(cities[city_count], city_name);
+    city_count++;
+    printf("City '%s' added successfully!\n", city_name);
+}
+
+void renameCity() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+    
+    displayCities();
+    int index;
+    printf("Enter city number to rename: ");
+    scanf("%d", &index);
+    
+    if(index < 1 || index > city_count) {
+        printf("Invalid city number!\n");
+        return;
+    }
+    
+    char new_name[MAX_NAME_LENGTH];
+    printf("Enter new name for %s: ", cities[index-1]);
+    scanf("%s", new_name);
+    
+    if(isCityExists(new_name)) {
+        printf("City '%s' already exists!\n", new_name);
+        return;
+    }
+    
+    printf("City '%s' renamed to '%s'\n", cities[index-1], new_name);
+    strcpy(cities[index-1], new_name);
+}
+
+
 
 
 
