@@ -248,6 +248,36 @@ void displayCities() {
         printf("%d. %s\n", i+1, cities[i]);
     }
 }
+void distanceManagement() {
+    int choice;
+    do {
+        system("cls");
+        printf("=== DISTANCE MANAGEMENT ===\n");
+        printf("1. Input/Edit Distance\n");
+        printf("2. Display Distance Table\n");
+        printf("3. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch(choice) {
+            case 1:
+                inputDistance();
+                break;
+            case 2:
+                displayDistanceTable();
+                break;
+            case 3:
+                break;
+            default:
+                printf("Invalid choice!\n");
+        }
+        if(choice != 3) {
+            printf("\nPress Enter to continue...");
+            getchar(); getchar();
+        }
+    } while(choice != 3);
+}
+
 
 
 
