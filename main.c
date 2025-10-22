@@ -277,6 +277,72 @@ void distanceManagement() {
         }
     } while(choice != 3);
 }
+void inputDistance() {
+    if(city_count < 2) {
+        printf("Need at least 2 cities to input distances!\n");
+        return;
+    }
+    
+    displayCities();
+    int city1, city2;
+    float distance;
+    
+    printf("Enter source city number: ");
+    scanf("%d", &city1);
+    printf("Enter destination city number: ");
+    scanf("%d", &city2);
+    
+    if(city1 < 1 || city1 > city_count || city2 < 1 || city2 > city_count) {
+        printf("Invalid city numbers!\n");
+        return;
+    }
+    
+    if(city1 == city2) {
+        printf("Source and destination cannot be the same!\n");
+        return;
+    }
+    
+    printf("Enter distance between %s and %s (km): ", cities[city1-1], cities[city2-1]);
+    scanf("%f", &distance);
+    
+    if(distance < 0) {
+        printf("Distance cannot be negative!\n");
+        return;
+    }
+    
+    distances[city1-1][city2-1] = distance;
+    distances[city2-1][city1-1] = distance; // Make symmetric
+    printf("Distance updated successfully!\n");
+}
+
+void displayDistanceTable() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+    
+    printf("\n=== DISTANCE TABLE (km) ===\n");
+    printf("%-15s", "");
+    int i;
+    for(i = 0; i < city_count; i++) {
+        printf("%-15s", cities[i]);
+    }
+    printf("\n");
+    
+    for(i = 0; i < city_count; i++) {
+        printf("%-15s", cities[i]);
+        int j;
+        for(j = 0; j < city_count; j++) {
+            if(distances[i][j] == -1)
+                printf("%-15s", "N/A");
+            else
+                printf("%-15.2f", distances[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
 
 
 
