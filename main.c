@@ -206,6 +206,48 @@ void renameCity() {
     printf("City '%s' renamed to '%s'\n", cities[index-1], new_name);
     strcpy(cities[index-1], new_name);
 }
+void removeCity() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+    
+    displayCities();
+    int index;
+    printf("Enter city number to remove: ");
+    scanf("%d", &index);
+    
+    if(index < 1 || index > city_count) {
+        printf("Invalid city number!\n");
+        return;
+    }
+    
+    printf("Are you sure you want to remove '%s'? (y/n): ", cities[index-1]);
+    char confirm;
+    scanf(" %c", &confirm);
+    
+    if(confirm == 'y' || confirm == 'Y') {
+        // Shift cities array
+        int i;
+        for( i = index-1; i < city_count-1; i++) {
+            strcpy(cities[i], cities[i+1]);
+        }
+        city_count--;
+        printf("City removed successfully!\n");
+    }
+}
+
+void displayCities() {
+    printf("\n=== AVAILABLE CITIES ===\n");
+    if(city_count == 0) {
+        printf("No cities available.\n");
+        return;
+    }
+    int i;
+    for(i = 0; i < city_count; i++) {
+        printf("%d. %s\n", i+1, cities[i]);
+    }
+}
 
 
 
