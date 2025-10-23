@@ -341,6 +341,228 @@ void displayDistanceTable() {
         printf("\n");
     }
 }
+void vehicleManagement() {
+    system("cls");
+    printf("=== VEHICLE MANAGEMENT ===\n");
+    printf("%-10s %-12s %-15s %-12s %-15s\n", 
+           "Type", "Capacity(kg)", "Rate/km(LKR)", "Speed(km/h)", "Fuel Eff(km/l)");
+    printf("-----------------------------------------------------------------\n");
+    int i;
+    for(i = 0; i < 3; i++) {
+        printf("%-10s %-12d %-15d %-12d %-15d\n",
+               vehicles[i].type, vehicles[i].capacity, vehicles[i].rate_per_km,
+               vehicles[i].avg_speed, vehicles[i].fuel_efficiency);
+    }
+    
+    printf("\nThese are fixed vehicle types and cannot be modified.\n");
+}
+
+void deliveryRequest() {
+    if(city_count < 2) {
+        printf("Need at least 2 cities for delivery!\n");
+        return;
+    }
+    
+    if(delivery_count >= MAX_DELIVERIES) {
+        printf("Maximum delivery limit reached!\n");
+        return;
+    }
+    
+    system("cls");
+    printf("=== DELIVERY REQUEST ===\n");
+    displayCities();
+    
+    int source, destination, vehicle_choice;
+    float weight;
+    
+    printf("Enter source city number: ");
+    scanf("%d", &source);
+    printf("Enter destination city number: ");
+    scanf("%d", &destination);
+    
+    if(source < 1 || source > city_count || destination < 1 || destination > city_count) {
+        printf("Invalid city numbers!\n");
+        return;
+    }
+    
+    if(source == destination) {
+        printf("Source and destination cannot be the same!\n");
+        return;
+    }
+    
+    if(distances[source-1][destination-1] == -1) {
+        printf("No direct route available between %s and %s!\n", 
+               cities[source-1], cities[destination-1]);
+        return;
+    }
+    
+    printf("\nAvailable Vehicles:\n");
+    int i;
+    for( i = 0; i < 3; i++) {
+        printf("%d. %s (Capacity: %d kg)\n", i+1, vehicles[i].type, vehicles[i].capacity);
+    }
+    
+    printf("Select vehicle type (1-3): ");
+    scanf("%d", &vehicle_choice);
+    
+    if(vehicle_choice < 1 || vehicle_choice > 3) {
+        printf("Invalid vehicle choice!\n");
+        return;
+    }
+    
+    printf("Enter package weight (kg): ");
+    scanf("%f", &weight);
+    
+    if(weight <= 0) {
+        printf("Weight must be positive!\n");
+        return;
+    }
+    
+    if(weight > vehicles[vehicle_choice-1].capacity) {
+        printf("Weight exceeds vehicle capacity! Maximum: %d kg\n", 
+               vehicles[vehicle_choice-1].capacity);
+        return;
+    }
+    
+    calculateDelivery(source-1, destination-1, weight, vehicle_choice-1);
+}
+
+void calculateDelivery(int source, int destination, float weight, int vehicle_type) {
+    Delivery *delivery = &deliveries[delivery_count];
+    
+    delivery->id = delivery_count + 1;
+    strcpy(delivery->source, cities[source]);
+    strcpy(delivery->destination, cities[destination]);
+    delivery->weight = weight;
+    strcpy(delivery->vehicle_type, vehicles[vehicle_type].type);
+    
+    // Find minimum distance (direct or through other cities)
+    delivery->distance = findMinimumDistance(source, destination);
+    
+    float D = delivery->distance;
+    float W = weight;
+    float R = vehicles[vehicle_type].rate_per_km;
+    float S = vehicles[vehicle_type].avg_speed;
+    float E = vehicles[vehicle_type].fuel_efficiency;
+    
+    // Calculations
+    delivery->base_cost = D * R * (1 + W / 10000.0);
+    delivery->fuel_used = D / E;
+    delivery->fuel_cost = delivery->fuel_used * FUEL_PRICE;
+    delivery->operational_cost = delivery->base_cost + delivery->fuel_cost;
+    delivery->profit = delivery->base_cost * 0.25;
+    delivery->customer_charge = delivery->operational_cost + delivery->profit;
+    delivery->delivery_time = D / S;
+    delivery->completed = 1;
+    
+    // Display results
+    printf("\n==============================================================\n");
+    printf("                DELIVERY COST ESTIMATION\n");
+    printf("==============================================================\n");
+    printf("From: %s\n", delivery->source);
+    printf("To: %s\n", delivery->destination);
+    printf("Minimum Distance: %.2f km\n", delivery->distance);
+    printf("Vehicle: %s\n", delivery->vehicle_type);
+    printf("Weight: %.2f kg\n", delivery->weight);
+    printf("==============================================================\n");
+    printf("Base Cost: %.2f × %.2f × (1 + %.2f/10000) = %.2f LKR\n", 
+           D, R, W, delivery->base_cost);
+    printf("Fuel Used: %.2f L\n", delivery->fuel_used);
+    printf("Fuel Cost: %.2f LKR\n", delivery->fuel_cost);
+    printf("Operational Cost: %.2f LKR\n", delivery->operational_cost);
+    printf("Profit: %.2f LKR\n", delivery->profit);
+    printf("Customer Charge: %.2f LKR\n", delivery->customer_charge);
+    printf("Estimated Time: %.2f hours\n", delivery->delivery_time);
+    printf("==============================================================\n");
+    
+    delivery_count++;
+    
+    printf("\nDelivery recorded successfully! Delivery ID: %d\n", delivery->id);
+}
+
+float findMinimumDistance(int source, int destination) {
+    float direct_distance = distances[source][destination];
+    float min_distance = direct_distance;
+    
+    // For small number of cities, try to find better routes
+    if(city_count <= 4) {
+        int available_cities[MAX_CITIES];
+        int path_count = 0;
+        
+        // Collect all cities except source and destination
+        int i;
+        for( i = 0; i < city_count; i++) {
+            if(i != source && i != destination) {
+                available_cities[path_count++] = i;
+            }
+        }
+        
+        if(path_count > 0) {
+            int best_path[MAX_CITIES];
+            int best_path_length = 0;
+            
+            generatePermutations(available_cities, 0, path_count-1, source, destination, 
+                               &min_distance, best_path, &best_path_length);
+        }
+    }
+    
+    return min_distance;
+}
+
+void generatePermutations(int cities[], int start, int end, int source, int destination, 
+                         float *min_distance, int best_path[], int *best_path_length) {
+    if(start == end) {
+        // Create full path: source -> permutation -> destination
+        int path[MAX_CITIES];
+        int length = 0;
+        
+        path[length++] = source;
+        int i;
+        for(i= 0; i <= end; i++) {
+            path[length++] = cities[i];
+        }
+        path[length++] = destination;
+        
+        float path_distance = calculatePathDistance(path, length);
+        
+        if(path_distance < *min_distance && path_distance > 0) {
+            *min_distance = path_distance;
+            // Store best path (optional for display)
+            int i;
+            for(i = 0; i < length; i++) {
+                best_path[i] = path[i];
+            }
+            *best_path_length = length;
+        }
+    } else {
+    	int i;
+        for(i = start; i <= end; i++) {
+            swap(&cities[start], &cities[i]);
+            generatePermutations(cities, start+1, end, source, destination, 
+                               min_distance, best_path, best_path_length);
+            swap(&cities[start], &cities[i]);
+        }
+    }
+}
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+float calculatePathDistance(int path[], int length) {
+    float total_distance = 0;
+    int i;
+    for(i = 0; i < length - 1; i++) {
+        if(distances[path[i]][path[i+1]] == -1) {
+            return -1; // Invalid path
+        }
+        total_distance += distances[path[i]][path[i+1]];
+    }
+    
+    return total_distance;
+}
 
 
 
