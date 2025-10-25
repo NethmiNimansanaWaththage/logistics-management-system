@@ -8,6 +8,7 @@
 #define MAX_DELIVERIES 50
 #define MAX_NAME_LENGTH 50
 #define FUEL_PRICE 310.0
+
 // Vehicle structure
 typedef struct {
     char type[10];
@@ -16,7 +17,8 @@ typedef struct {
     int avg_speed;
     int fuel_efficiency;
 } Vehicle;
-//Delivery structure
+
+// Delivery structure
 typedef struct {
     int id;
     char source[MAX_NAME_LENGTH];
@@ -33,13 +35,15 @@ typedef struct {
     float delivery_time;
     int completed;
 } Delivery;
-// Global Arrays
+
+// Global arrays
 char cities[MAX_CITIES][MAX_NAME_LENGTH];
 float distances[MAX_CITIES][MAX_CITIES];
 Delivery deliveries[MAX_DELIVERIES];
 Vehicle vehicles[3];
 int city_count = 0;
 int delivery_count = 0;
+
 // Function prototypes
 void initializeSystem();
 void displayMainMenu();
@@ -74,6 +78,7 @@ void toLowerCase(char *str);
 int isCityExists(char *city_name);
 void loadData();
 void saveData();
+
 int main() {
     initializeSystem();
     loadData();
@@ -117,8 +122,9 @@ int main() {
     
     return 0;
 }
+
 void initializeSystem() {
-    // Initializing vehicles
+    // Initialize vehicles
     strcpy(vehicles[0].type, "Van");
     vehicles[0].capacity = 1000;
     vehicles[0].rate_per_km = 30;
@@ -137,19 +143,20 @@ void initializeSystem() {
     vehicles[2].avg_speed = 45;
     vehicles[2].fuel_efficiency = 4;
     
-    // Initializing distance matrix
-    for(int i = 0; i < MAX_CITIES; i++) {
-        for(int j = 0; j < MAX_CITIES; j++) {
+    // Initialize distance matrix
+    int i,j;
+    for(i = 0; i < MAX_CITIES; i++) {
+        for( j = 0; j < MAX_CITIES; j++) {
             if(i == j) 
                 distances[i][j] = 0;
             else
-                distances[i][j] = -1; // -1 is meant to be no connection
+                distances[i][j] = -1; // -1 means no connection
         }
     }
 }
 
 void displayMainMenu() {
-    system("cls"); 
+    system("cls"); // Use "clear" for Linux/Mac
     printf("==============================================\n");
     printf("      LOGISTICS MANAGEMENT SYSTEM\n");
     printf("==============================================\n");
@@ -162,6 +169,7 @@ void displayMainMenu() {
     printf("7. Exit\n");
     printf("==============================================\n");
 }
+
 void cityManagement() {
     int choice;
     do {
@@ -248,6 +256,7 @@ void renameCity() {
     printf("City '%s' renamed to '%s'\n", cities[index-1], new_name);
     strcpy(cities[index-1], new_name);
 }
+
 void removeCity() {
     if(city_count == 0) {
         printf("No cities available!\n");
@@ -290,6 +299,7 @@ void displayCities() {
         printf("%d. %s\n", i+1, cities[i]);
     }
 }
+
 void distanceManagement() {
     int choice;
     do {
@@ -319,6 +329,7 @@ void distanceManagement() {
         }
     } while(choice != 3);
 }
+
 void inputDistance() {
     if(city_count < 2) {
         printf("Need at least 2 cities to input distances!\n");
@@ -383,6 +394,7 @@ void displayDistanceTable() {
         printf("\n");
     }
 }
+
 void vehicleManagement() {
     system("cls");
     printf("=== VEHICLE MANAGEMENT ===\n");
@@ -606,15 +618,156 @@ float calculatePathDistance(int path[], int length) {
     return total_distance;
 }
 
+void reports() {
+    system("cls");
+    printf("=== PERFORMANCE REPORTS ===\n");
+    
+    if(delivery_count == 0) {
+        printf("No deliveries completed yet.\n");
+        return;
+    }
+    
+    float total_distance = 0;
+    float total_time = 0;
+    float total_revenue = 0;
+    float total_profit = 0;
+    float longest_route = 0;
+    float shortest_route = deliveries[0].distance;
+    int i;
+    for( i = 0; i < delivery_count; i++) {
+        total_distance += deliveries[i].distance;
+        total_time += deliveries[i].delivery_time;
+        total_revenue += deliveries[i].customer_charge;
+        total_profit += deliveries[i].profit;
+        
+        if(deliveries[i].distance > longest_route) {
+            longest_route = deliveries[i].distance;
+        }
+        if(deliveries[i].distance < shortest_route) {
+            shortest_route = deliveries[i].distance;
+        }
+    }
+    
+    printf("a. Total Deliveries Completed: %d\n", delivery_count);
+    printf("b. Total Distance Covered: %.2f km\n", total_distance);
+    printf("c. Average Delivery Time: %.2f hours\n", total_time / delivery_count);
+    printf("d. Total Revenue: %.2f LKR\n", total_revenue);
+    printf("e. Total Profit: %.2f LKR\n", total_profit);
+    printf("f. Longest Route: %.2f km\n", longest_route);
+    printf("g. Shortest Route: %.2f km\n", shortest_route);
+    
+    printf("\n=== DELIVERY HISTORY ===\n");
+    printf("%-3s %-15s %-15s %-8s %-10s %-12s %-10s\n", 
+           "ID", "From", "To", "Weight", "Vehicle", "Distance", "Charge");
+    printf("--------------------------------------------------------------------------------\n");
+    
+    for( i = 0; i < delivery_count; i++) {
+        printf("%-3d %-15s %-15s %-8.2f %-10s %-12.2f %-10.2f\n",
+               deliveries[i].id, deliveries[i].source, deliveries[i].destination,
+               deliveries[i].weight, deliveries[i].vehicle_type,
+               deliveries[i].distance, deliveries[i].customer_charge);
+    }
+}
 
+void loadData() {
+    FILE *file = fopen("routes.txt", "r");
+    if(file) {
+        fscanf(file, "%d\n", &city_count);
+        int i;
+        for( i = 0; i < city_count; i++) {
+            fgets(cities[i], MAX_NAME_LENGTH, file);
+            cities[i][strcspn(cities[i], "\n")] = 0; // Remove newline
+        }
+        
+        for(i = 0; i < city_count; i++) {
+        	int j;
+            for( j = 0; j < city_count; j++) {
+                fscanf(file, "%f", &distances[i][j]);
+            }
+        }
+        fclose(file);
+        printf("Routes data loaded successfully!\n");
+    }
+    
+    file = fopen("deliveries.txt", "r");
+    if(file) {
+        fscanf(file, "%d\n", &delivery_count);
+        int i;
+        for( i = 0; i < delivery_count; i++) {
+            fscanf(file, "%d,%[^,],%[^,],%f,%[^,],%f,%f,%f,%f,%f,%f,%f,%d\n",
+                   &deliveries[i].id, deliveries[i].source, deliveries[i].destination,
+                   &deliveries[i].weight, deliveries[i].vehicle_type,
+                   &deliveries[i].distance, &deliveries[i].base_cost,
+                   &deliveries[i].fuel_used, &deliveries[i].fuel_cost,
+                   &deliveries[i].operational_cost, &deliveries[i].profit,
+                   &deliveries[i].customer_charge, &deliveries[i].delivery_time,
+                   &deliveries[i].completed);
+        }
+        fclose(file);
+        printf("Deliveries data loaded successfully!\n");
+    }
+}
 
+void saveData() {
+    FILE *file = fopen("routes.txt", "w");
+    if(file) {
+        fprintf(file, "%d\n", city_count);
+        int i;
+        for( i = 0; i < city_count; i++) {
+            fprintf(file, "%s\n", cities[i]);
+        }
+        
+        for( i = 0; i < city_count; i++) {
+        	int j;
+            for( j = 0; j < city_count; j++) {
+                fprintf(file, "%.2f ", distances[i][j]);
+            }
+            fprintf(file, "\n");
+        }
+        fclose(file);
+    }
+    
+    file = fopen("deliveries.txt", "w");
+    if(file) {
+        fprintf(file, "%d\n", delivery_count);
+        int i;
+        for(i = 0; i < delivery_count; i++) {
+            fprintf(file, "%d,%s,%s,%.2f,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d\n",
+                   deliveries[i].id, deliveries[i].source, deliveries[i].destination,
+                   deliveries[i].weight, deliveries[i].vehicle_type,
+                   deliveries[i].distance, deliveries[i].base_cost,
+                   deliveries[i].fuel_used, deliveries[i].fuel_cost,
+                   deliveries[i].operational_cost, deliveries[i].profit,
+                   deliveries[i].customer_charge, deliveries[i].delivery_time,
+                   deliveries[i].completed);
+        }
+        fclose(file);
+    }
+}
 
+int findCityIndex(char *city_name) {
+	int i;
+    for(i = 0; i < city_count; i++) {
+        if(strcmp(cities[i], city_name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
+void toLowerCase(char *str) {
+	int i;
+    for(i = 0; str[i]; i++) {
+        str[i] = tolower(str[i]);
+    }
+}
 
-
-
-
-
-
-
-
+int isCityExists(char *city_name) {
+	int i;
+    for(i = 0; i < city_count; i++) {
+        if(strcmp(cities[i], city_name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
