@@ -74,7 +74,49 @@ void toLowerCase(char *str);
 int isCityExists(char *city_name);
 void loadData();
 void saveData();
-
+int main() {
+    initializeSystem();
+    loadData();
+    
+    int choice;
+    do {
+        displayMainMenu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch(choice) {
+            case 1:
+                cityManagement();
+                break;
+            case 2:
+                distanceManagement();
+                break;
+            case 3:
+                vehicleManagement();
+                break;
+            case 4:
+                deliveryRequest();
+                break;
+            case 5:
+                reports();
+                break;
+            case 6:
+                saveData();
+                printf("Data saved successfully!\n");
+                break;
+            case 7:
+                saveData();
+                printf("Thank you for using Logistics Management System!\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+        printf("\nPress Enter to continue...");
+        getchar(); getchar();
+    } while(choice != 7);
+    
+    return 0;
+}
 void initializeSystem() {
     // Initializing vehicles
     strcpy(vehicles[0].type, "Van");
@@ -563,6 +605,7 @@ float calculatePathDistance(int path[], int length) {
     
     return total_distance;
 }
+
 
 
 
