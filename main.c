@@ -156,7 +156,7 @@ void initializeSystem() {
 }
 
 void displayMainMenu() {
-    system("cls"); // Use "clear" for Linux/Mac
+    system("cls"); 
     printf("==============================================\n");
     printf("      LOGISTICS MANAGEMENT SYSTEM\n");
     printf("==============================================\n");
@@ -278,7 +278,7 @@ void removeCity() {
     scanf(" %c", &confirm);
     
     if(confirm == 'y' || confirm == 'Y') {
-        // Shift cities array
+        
         int i;
         for( i = index-1; i < city_count-1; i++) {
             strcpy(cities[i], cities[i+1]);
@@ -364,7 +364,7 @@ void inputDistance() {
     }
     
     distances[city1-1][city2-1] = distance;
-    distances[city2-1][city1-1] = distance; // Make symmetric
+    distances[city2-1][city1-1] = distance; 
     printf("Distance updated successfully!\n");
 }
 
@@ -490,7 +490,7 @@ void calculateDelivery(int source, int destination, float weight, int vehicle_ty
     delivery->weight = weight;
     strcpy(delivery->vehicle_type, vehicles[vehicle_type].type);
     
-    // Find minimum distance (direct or through other cities)
+    // Find minimum distance 
     delivery->distance = findMinimumDistance(source, destination);
     
     float D = delivery->distance;
@@ -538,12 +538,12 @@ float findMinimumDistance(int source, int destination) {
     float direct_distance = distances[source][destination];
     float min_distance = direct_distance;
     
-    // For small number of cities, try to find better routes
+    
     if(city_count <= 4) {
         int available_cities[MAX_CITIES];
         int path_count = 0;
         
-        // Collect all cities except source and destination
+        
         int i;
         for( i = 0; i < city_count; i++) {
             if(i != source && i != destination) {
@@ -581,7 +581,7 @@ void generatePermutations(int cities[], int start, int end, int source, int dest
         
         if(path_distance < *min_distance && path_distance > 0) {
             *min_distance = path_distance;
-            // Store best path (optional for display)
+            
             int i;
             for(i = 0; i < length; i++) {
                 best_path[i] = path[i];
@@ -610,7 +610,7 @@ float calculatePathDistance(int path[], int length) {
     int i;
     for(i = 0; i < length - 1; i++) {
         if(distances[path[i]][path[i+1]] == -1) {
-            return -1; // Invalid path
+            return -1; 
         }
         total_distance += distances[path[i]][path[i+1]];
     }
@@ -676,7 +676,7 @@ void loadData() {
         int i;
         for( i = 0; i < city_count; i++) {
             fgets(cities[i], MAX_NAME_LENGTH, file);
-            cities[i][strcspn(cities[i], "\n")] = 0; // Remove newline
+            cities[i][strcspn(cities[i], "\n")] = 0;
         }
         
         for(i = 0; i < city_count; i++) {
@@ -771,3 +771,4 @@ int isCityExists(char *city_name) {
     }
     return 0;
 }
+
